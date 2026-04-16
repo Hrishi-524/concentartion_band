@@ -1,0 +1,23 @@
+# Signal processing
+numpy
+scipy
+matplotlib
+seaborn
+
+# Serial communication
+pyserial
+
+# Backend
+fastapi
+uvicorn[standard]
+websockets
+
+# Data handling
+pandas
+
+# Machine Learning
+scikit-learn
+joblib
+
+# Dev
+python-dotenv

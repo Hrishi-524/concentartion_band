@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<body>
+<pre id="log" style="font-family:monospace; font-size:13px;"></pre>
+<script>
+  const log = document.getElementById("log");
+  const ws = new WebSocket("ws://localhost:8000/ws/eeg?mode=csv");
+
+  ws.onopen    = () => append("✅ Connected");
+  ws.onclose   = () => append("❌ Disconnected");
+  ws.onerror   = e  => append("⚠ Error: " + e);
+  ws.onmessage = e  => {
+    const d = JSON.parse(e.data);
+    append(
+      `t=${d.timestamp.toFixed(2)} | ` +
+      `Focus: ${d.focus_score.toFixed(3)} | ` +
+      `Raw: ${d.focus_score_raw.toFixed(3)} | ` +
+      `${d.artifact ? "⚠ ARTIFACT" : ""}`
+    );
+  };
+
+  function append(msg) {
+    log.textContent = msg + "\n" + log.textContent;
+  }
+</script>
+</body>
+</html>

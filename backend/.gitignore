@@ -1,0 +1,10 @@
+pycache/
+# logs
+backend/logs/
+*.csv
+
+# node
+node_modules/
+
+# env
+.env
