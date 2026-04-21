@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useMemo } from "react";
+import Link from "next/link";
 import { useClassStream } from "@/hooks/useClassStream";
 import { StudentData } from "@/types/eeg";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +11,32 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
   ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from "recharts";
+
+/* ================================================================
+   STUDENT ID → Display Name / Terminal mapping
+   ================================================================ */
+
+const STUDENT_NAMES: Record<string, string> = {
+  user_1: "Student 1",
+  user_2: "Student 2",
+};
+
+/** Maps backend user IDs to the source query param used on the / page. */
+const STUDENT_TERMINAL: Record<string, string> = {
+  user_1: "highfocus",  // terminal 1
+  user_2: "relaxed",    // terminal 2
+};
+
+function displayName(id: string) {
+  return STUDENT_NAMES[id] ?? id;
+}
+
+function terminalHref(id: string) {
+  const file = STUDENT_TERMINAL[id];
+  if (file) return `/?source=${file}`;
+  // fallback: live serial
+  return `/?source=serial`;
+}
 
 /* ================================================================
    HELPERS
@@ -296,64 +323,72 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
    STUDENT CARD
    ================================================================ */
 
-function StudentCard({ id, data, sparkData }: { id: string; data: StudentData; sparkData: number[] }) {
+function StudentCard({ id, data, sparkData, href }: { id: string; data: StudentData; sparkData: number[]; href: string }) {
   const tier = focusTier(data.focus_score);
   const mlColor = stateColor(data.ml_state);
+  const name = displayName(id);
 
   return (
-    <Card className="group transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-black/5">
-      <CardContent className="p-4 space-y-3">
+    <Link href={href} className="block">
+      <Card className="group cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-black/5 hover:border-[#818cf8]/40">
+        <CardContent className="p-4 space-y-3">
 
-        {/* Header row */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold">{id}</span>
-          <Badge
-            className="rounded-full text-[10px] px-2 py-0.5 font-semibold capitalize"
-            style={{ backgroundColor: mlColor + "18", color: mlColor, border: `1px solid ${mlColor}30` }}
-          >
-            {data.ml_state || "—"}
-          </Badge>
-        </div>
-
-        {/* Focus score */}
-        <div className="flex items-end gap-2">
-          <span className="text-3xl font-bold tabular-nums transition-colors duration-300" style={{ color: tier.color }}>
-            {data.focus_score.toFixed(3)}
-          </span>
-          <span className="mb-1 text-xs text-muted-foreground">{tier.label}</span>
-        </div>
-
-        {/* Sparkline */}
-        <Sparkline data={sparkData} color={tier.color} />
-
-        {/* Band values */}
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-lg bg-muted/50 px-2 py-1.5">
-            <p className="text-[10px] text-muted-foreground">β Beta</p>
-            <p className="text-xs font-semibold tabular-nums">{(data.beta * 100).toFixed(1)}%</p>
+          {/* Header row */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold">{name}</span>
+            <Badge
+              className="rounded-full text-[10px] px-2 py-0.5 font-semibold capitalize"
+              style={{ backgroundColor: mlColor + "18", color: mlColor, border: `1px solid ${mlColor}30` }}
+            >
+              {data.ml_state || "—"}
+            </Badge>
           </div>
-          <div className="rounded-lg bg-muted/50 px-2 py-1.5">
-            <p className="text-[10px] text-muted-foreground">α Alpha</p>
-            <p className="text-xs font-semibold tabular-nums">{(data.alpha * 100).toFixed(1)}%</p>
-          </div>
-          <div className="rounded-lg bg-muted/50 px-2 py-1.5">
-            <p className="text-[10px] text-muted-foreground">θ Theta</p>
-            <p className="text-xs font-semibold tabular-nums">{(data.theta * 100).toFixed(1)}%</p>
-          </div>
-        </div>
 
-        {/* Confidence bar */}
-        {data.ml_confidence != null && (
-          <div>
-            <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5">
-              <span>Confidence</span>
-              <span className="font-medium">{(data.ml_confidence * 100).toFixed(0)}%</span>
+          {/* Focus score */}
+          <div className="flex items-end gap-2">
+            <span className="text-3xl font-bold tabular-nums transition-colors duration-300" style={{ color: tier.color }}>
+              {data.focus_score.toFixed(3)}
+            </span>
+            <span className="mb-1 text-xs text-muted-foreground">{tier.label}</span>
+          </div>
+
+          {/* Sparkline */}
+          <Sparkline data={sparkData} color={tier.color} />
+
+          {/* Band values */}
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-lg bg-muted/50 px-2 py-1.5">
+              <p className="text-[10px] text-muted-foreground">β Beta</p>
+              <p className="text-xs font-semibold tabular-nums">{(data.beta * 100).toFixed(1)}%</p>
             </div>
-            <Progress value={data.ml_confidence * 100} className="h-1.5" indicatorClassName="bg-[#818cf8]" />
+            <div className="rounded-lg bg-muted/50 px-2 py-1.5">
+              <p className="text-[10px] text-muted-foreground">α Alpha</p>
+              <p className="text-xs font-semibold tabular-nums">{(data.alpha * 100).toFixed(1)}%</p>
+            </div>
+            <div className="rounded-lg bg-muted/50 px-2 py-1.5">
+              <p className="text-[10px] text-muted-foreground">θ Theta</p>
+              <p className="text-xs font-semibold tabular-nums">{(data.theta * 100).toFixed(1)}%</p>
+            </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* Confidence bar */}
+          {data.ml_confidence != null && (
+            <div>
+              <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5">
+                <span>Confidence</span>
+                <span className="font-medium">{(data.ml_confidence * 100).toFixed(0)}%</span>
+              </div>
+              <Progress value={data.ml_confidence * 100} className="h-1.5" indicatorClassName="bg-[#818cf8]" />
+            </div>
+          )}
+
+          {/* Click hint */}
+          <p className="text-[10px] text-muted-foreground text-center opacity-0 group-hover:opacity-100 transition-opacity">
+            Click to view terminal →
+          </p>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
@@ -467,6 +502,7 @@ export default function TeacherDashboard() {
               id={id}
               data={data}
               sparkData={studentHistory[id] ?? []}
+              href={terminalHref(id)}
             />
           ))}
         </div>

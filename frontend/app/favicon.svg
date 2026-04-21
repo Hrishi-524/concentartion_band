@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background -->
+  <rect width="64" height="64" rx="14" fill="#0f172a"/>
+
+  <!-- EEG Wave -->
+
+<path d="M8 36 L16 36 L20 24 L26 44 L32 20 L38 44 L44 28 L48 36 L56 36"
+     fill="none"
+     stroke="#22c55e"
+     stroke-width="3"
+     stroke-linecap="round"
+     stroke-linejoin="round"/>
+
+  <!-- Subtle Glow Circle -->
+
+  <circle cx="32" cy="32" r="20" fill="none" stroke="#22c55e" stroke-opacity="0.2"/>
+</svg>

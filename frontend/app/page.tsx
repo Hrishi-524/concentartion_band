@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useEEGStream }   from "@/hooks/useEEGStream";
 import FocusChart         from "@/components/FocusChart";
 import BandPowerChart     from "@/components/BandPowerChart";
 import SourceControl, { SourceMode } from "@/components/SourceControl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { wsUrl, ENDPOINTS } from "@/lib/api";
 
 function buildWsUrl(source: SourceMode): string {
@@ -46,16 +49,34 @@ function StatusBadge({ status }: { status: "connecting" | "connected" | "disconn
   );
 }
 
+/* ---- Resolve initial source from ?source= query param ---- */
+function sourceFromParam(param: string | null): SourceMode {
+  if (param === "relaxed")  return { mode: "csv", file: "relaxed" };
+  if (param === "serial")   return { mode: "serial" };
+  return { mode: "csv", file: "highfocus" }; // default = terminal 1
+}
+
 /* ========== Main ========== */
 export default function Dashboard() {
-  const [source, setSource] = useState<SourceMode>({
-    mode: "csv",
-    file: "highfocus",
-  });
+  return (
+    <Suspense>
+      <DashboardWithParams />
+    </Suspense>
+  );
+}
 
-  const wsUrl = useMemo(() => buildWsUrl(source), [source]);
+function DashboardWithParams() {
+  const searchParams = useSearchParams();
+  const initialSource = useMemo(
+    () => sourceFromParam(searchParams.get("source")),
+    [searchParams],
+  );
 
-  return <DashboardInner key={wsUrl} wsUrl={wsUrl} source={source} onSourceChange={setSource} />;
+  const [source, setSource] = useState<SourceMode>(initialSource);
+
+  const wsUrlValue = useMemo(() => buildWsUrl(source), [source]);
+
+  return <DashboardInner key={wsUrlValue} wsUrl={wsUrlValue} source={source} onSourceChange={setSource} />;
 }
 
 function DashboardInner({
@@ -81,6 +102,11 @@ function DashboardInner({
           <span className="text-sm text-muted-foreground font-medium">EEG Focus Monitor</span>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/teacher">
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+              📊 Classroom
+            </Button>
+          </Link>
           <StatusBadge status={status} />
           {latest?.artifact && (
             <div className="flex items-center gap-1.5 rounded-full bg-destructive/10 border border-destructive/30 px-3 py-1 text-xs font-medium text-destructive">
