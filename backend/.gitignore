@@ -5,6 +5,9 @@ backend/logs/
 
 # node
 node_modules/
+__pycache__/
+*.pyc
+.DS_Store
 
 # env
 .env

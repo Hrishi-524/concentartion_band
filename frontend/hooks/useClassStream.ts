@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { StudentData, ClassSnapshot } from "@/types/eeg";
+import { wsUrl, ENDPOINTS } from "@/lib/api";
 
 const MAX_HISTORY   = 120;  // ~30s at 4Hz
 const MAX_SPARKLINE = 30;
@@ -70,7 +71,7 @@ export function useClassStream(): ClassStreamState {
   }, []);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8000/ws/class");
+    const ws = new WebSocket(wsUrl(ENDPOINTS.WS_CLASS));
 
     ws.onopen  = () => setStatus("connected");
     ws.onclose = () => setStatus("disconnected");

@@ -6,11 +6,13 @@ import FocusChart         from "@/components/FocusChart";
 import BandPowerChart     from "@/components/BandPowerChart";
 import SourceControl, { SourceMode } from "@/components/SourceControl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { wsUrl, ENDPOINTS } from "@/lib/api";
 
 function buildWsUrl(source: SourceMode): string {
-  const base = "ws://localhost:8000/ws/eeg";
-  if (source.mode === "serial") return `${base}?mode=serial`;
-  return `${base}?mode=csv&file=${source.file}`;
+  if (source.mode === "serial") {
+    return wsUrl(ENDPOINTS.WS_EEG, { mode: "serial" });
+  }
+  return wsUrl(ENDPOINTS.WS_EEG, { mode: "csv", file: source.file });
 }
 
 /* ---------- Focus Score color mapping ---------- */
