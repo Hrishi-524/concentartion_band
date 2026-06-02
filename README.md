@@ -18,18 +18,7 @@ NeuroBand demonstrates how AI-driven wearable technology can transform tradition
 - [Deployment Steps](#deployment-steps)
 - [Subject Details](#subject-details)
 
----
 
-## Features
-
-- 🧠 **Real-Time EEG Signal Acquisition** — Captures raw brainwave signals non-invasively via an EEG-equipped headband.
-- 🔉 **Noise Filtering & Signal Processing** — Applies bandpass filters and artifact removal to clean raw EEG data for reliable analysis.
-- 🤖 **AI-Based Cognitive State Classification** — A trained ML/DL model classifies brain activity into states such as focused, relaxed, or mentally overloaded.
-- 📊 **Interactive Visualization Dashboard** — Displays real-time brainwave data and classification outputs through an intuitive user interface.
-- 📡 **Portable & Wearable Design** — Lightweight headband form factor suitable for everyday use in educational and healthcare contexts.
-- 🔮 **Future-Ready Architecture** — Designed for extensibility with cloud analytics, adaptive models, and smart platform integration.
-
----
 
 ## System Architecture
 
